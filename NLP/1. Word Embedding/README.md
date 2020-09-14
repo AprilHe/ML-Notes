@@ -1,0 +1,189 @@
+## Contents
+- [1. What is Word Embedding](#1-What-is-Word-Embedding)
+- [2.Count based Embedding](#2-Count-based-Embedding)
+  - [2.1 One-hot Encodings](#21-One-hot-Encodings)
+  - [2.2 Bag-of-words model](#22-Bag-of-words-model)
+  - [2.3 TF-IDF](#23-tf-idf)
+  - [2.4 N-gram Model](#24-N-gram-Model)
+  - [2.5 Co-Occurrence Matrix](#25-Co-Occurrence-Matrix)
+- [3. Prediction based embedding](#3-Prediction-based-embedding)
+  - [3.1 Word2Vec](#31-Word2Vec)
+- [4. Word2Vec Implementation](https://github.com/AprilHe/ML-Notes/blob/master/NLP/01%20Word%20Embedding/word2vec.ipynb)
+- [5.Reference](#5-Reference)
+
+## 1. What is Word Embedding
+As Machine Learning algorithms and almost all Deep Learning Architectures are incapable of processing strings or plain text in their raw form. They require numbers as inputs to perform any sort of job, be it classification, regression etc. in broad terms. And with the huge amount of data that is present in the text format, it is imperative to extract knowledge out of it and build applications. Word Embeddings is used to convert texts into numbers and there may be different numerical representations of the same text.
+
+
+## 2.Frequency based embedding
+### 2.1 One-hot Encodings
+1. Construct a dictionary with all words in the text
+2. the nth digit is an indicator of the presence of the particular word
+
+Let us take two sentences :
+
+S1. "John likes to watch movies. Mary likes movies too."
+
+S2. "John also likes to watch football games."
+
+Then, we construct a dictionary -  a list of unique tokens(words) in the corpus:
+
+{"John": 1, "likes": 2, "to": 3, "watch": 4, "movies": 5, "also": 6, "football": 7, "games": 8, "Mary": 9, "too": 10}
+
+With one-hot:
+
+**John: [1, 0, 0, 0, 0, 0, 0, 0, 0, 0]**
+
+**likes: [0, 1, 0, 0, 0, 0, 0, 0, 0, 0]**
+
+**Disadvantages**
+- Too sparse given a large corpus → computationally too expensive
+- No contextual/semantic information embedded in one-hot vectors → not readily suitable for tasks like POS tagging, named-entity recognition, etc.
+
+### 2.2 Bag-of-words model
+The bag-of-words (BOW) model is a representation that turns arbitrary text into fixed-length vectors by counting how many times each word appears
+
+Let us take two sentences :
+S1. "John likes to watch movies. Mary likes movies too."
+S2. "John also likes to watch football games."
+
+Then, we construct a dictionary -  a list of unique tokens(words) in the corpus:
+{"John": 1, "likes": 2, "to": 3, "watch": 4, "movies": 5, "also": 6, "football": 7, "games": 8, "Mary": 9, "too": 10}
+
+For sentences above, the Bag-of-words model gives:
+S1: [1,2,1,1,1,0,0,0,1,1]
+S2: [1,1,1,1,0,1,1,1,0,0]
+
+**Disadvantages**
+- a high dimensional feature vector due to large size of Vocabulary, V.
+- doesn’t leverage co-occurrence statistics between words, which assumes all words are independent of each other.
+- The number of counts for some commonly used words couldn't indicate significance well
+
+### 2.3 TF-IDF
+TF-IDF（term frequency–inverse document frequency）improve the indication ability of word counts by down weight the common words occurring in almost all documents and give more importance to words that appear in a subset of documents.
+
+TF = (Number of times term t appears in a document)/(Number of terms in the document)
+
+IDF = log(Number of documents/Number of documents a term t has appeared in) (we can add +1 to avoid denominator is 0)
+
+TF-IDF = TF * IDF, if number of documents that term t appeared increase, TF-IDF will decrease
+
+For example, a list of words in all documentation [This, is, about, Messi, Tf-IDF], the count in two documents:
+
+D1: [1,1,2,4,0]
+
+D2: [1,2,1,0,1]
+
+TF(This, D1) = 1/8
+
+TF(This, D2) = 1/5
+
+IDF(This) = log(2/2) = 0
+
+TF-IDF(This, D1) = TF-IDF(This, D2) = 0
+
+TF-IDF(Messi, D1) = (4/8)*log(2/1) = 0.15
+
+**Disadvantages**
+- No contextual/semantic information embedded
+
+### 2.4 N-gram Model
+N-gram is simply a sequence of N words
+
+Let us take two sentences :
+S1. "John likes to watch movies. Mary likes movies too."
+S2. "John also likes to watch football games."
+
+A dictionary with N=2 is:
+
+{"John likes”: 1, "likes to”: 2, "to watch”: 3, "watch movies”: 4, "Mary likes”: 5, "likes too”: 6, "John also”: 7, "also likes”: 8, “watch football”: 9, "football games": 10}
+
+The 2-gram model representation is:
+
+S1: [1, 1, 1, 1, 1, 1, 0, 0, 0, 0] where 1 means that sequence words (e.g. **John likes**) appears occurrence
+
+S2: [0, 1, 1, 0, 0, 0, 1, 1, 1, 1]
+
+**Disadvantages**
+- As n increasing, feature spaces represented by n-gram models is extreme sparsity.
+
+### 2.5 Co-Occurrence Matrix
+- Co-occurrence – For a given corpus, the co-occurrence of a pair of words say w1 and w2 is the number of times they have appeared together in a Context Window.
+- Context Window – Context window is specified by a number and the direction.
+
+Take an example, set the context window as 2 for following Corpus
+Corpus = He is not lazy. He is intelligent. He is smart.
+
+We have a Co-Occurrence Matrix:
+
+<img src="images/Co-Occurrence.png" width="400">
+
+Red box- It is the number of times ‘He’ and ‘is’ have appeared in the context window 2 and it can be seen that the count turns out to be 4. The below table will help you visualise the count.
+
+<img src="images/Co-Occurrence-2.png" width="500">
+
+
+
+**Advantages**
+- It preserves the semantic relationship between words. i.e man and woman tend to be closer than man and apple.
+- It uses SVD at its core, which produces more accurate word vector representations than existing methods.
+- It uses factorization which is a well-defined problem and can be efficiently solved.
+- It has to be computed once and can be used anytime once computed. In this sense, it is faster in comparison to others.
+
+**Disadvantages**
+- It requires huge memory to store the co-occurrence matrix.
+- The co-occurrence matrix is ​​also a sparse matrix
+
+
+
+## 3.Prediction based embedding
+### 3.1 Word2Vec
+Word2vec is a combination of two techniques – CBOW(Continuous bag of words) and Skip-gram model. Both of these are shallow neural networks which map word(s) to the target variable which is also a word(s). Both of these techniques learn weights which act as word vector representations.
+
+**CBOW model**
+CBOW model predict the word in the middle given n words before and after the target word.
+
+<img src="images/Cbow-1.png" width="400">
+
+The structure of the model:
+- The input layer and the target, both are one-hot encoded of size [1 X V]. Here V is the count of corpus.
+- There are two sets of weights. one is between the input and the hidden layer and second between hidden and output layer.
+Input-Hidden layer matrix size =[V X N] , hidden-Output layer matrix  size =[N X V] : Where N is the number of dimensions we choose to represent our word in.
+- Error between output and target is calculated and propagated back to re-adjust the weights.
+
+<img src="images/CBOW-model.png" width="500">
+
+The objective function of CBOW:
+
+<img src="images/CBOW-function.png" width="400">
+
+
+**Skip-gram model**
+Instead of using the surrounding words to predict the centre word as with CBOW, skip-gram uses the centre word (target) to predict the surrounding words (context).
+
+<img src="images/Skip-gram.png" width="400">
+
+Let us take an example: S1. "The man who passes the sentence should swing the sword."
+<img src="images/SG-example.png" width="500">
+<img src="images/SG-model.png" width="500">
+
+
+The skip-gram objective thus sums the log probabilities of the surrounding n words to the left and to the right of the target word w_t to produce the following objective:
+
+<img src="images/SG-function.png" width="300">
+
+## 4. Implementation
+[word2vec](https://github.com/AprilHe/ML-Notes/blob/master/NLP/1.%20Word%20Embedding/word2vec.ipynb)
+
+
+
+## 5.Reference
+[1][NLP: Word Embedding Techniques for Text Analysis](<https://medium.com/sfu-cspmp/nlp-word-embedding-techniques-for-text-analysis-ec4e91bb886f>)
+
+[2][An Intuitive Understanding of Word Embeddings](<https://www.analyticsvidhya.com/blog/2017/06/word-embeddings-count-word2veec/>)
+
+[3][NLP 101: Word2Vec](<https://towardsdatascience.com/nlp-101-word2vec-skip-gram-and-cbow-93512ee24314>)
+
+[4][On word embeddings](<https://ruder.io/word-embeddings-1/index.html#cwmodel>)
+
+[5][Learning Word Embedding](<https://lilianweng.github.io/lil-log/2017/10/15/learning-word-embedding.html#context-based-continuous-bag-of-words-cbow>)

@@ -1,0 +1,10 @@
+name: tensoflow
+channels:
+  - conda-forge
+dependencies:
+  - python=3.6
+  - numpy==1.11.3
+  - pandas
+  - tensorflow==1.2.1
+  - matplotlib
+  - jupyterlab
